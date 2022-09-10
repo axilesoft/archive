@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'byte_order.dart';
-import 'package:fast_gbk/fast_gbk.dart';
-
+//import 'package:fast_gbk/fast_gbk.dart';
+import 'package:charset/charset.dart';
 abstract class InputStreamBase {
   ///  The current read position relative to the start of the buffer.
   int get position;
@@ -212,9 +212,15 @@ class InputStream extends InputStreamBase {
     final s = readBytes(size);
     final bytes = s.toUint8List();
     try {
-      final str =
-        utf8 ? Utf8Decoder().convert(bytes) :
-        gbk.decode(bytes);
+
+      final String str;
+      if (utf8) {
+        str = Utf8Decoder().convert(bytes);
+      } else {
+        var ec=Charset.detect(bytes,defaultEncoding: gbk);
+        str = ec!.decode(bytes);
+      }
+        //gbk.decode(bytes);
         //String.fromCharCodes(bytes);
       return str;
     } catch (err) {
